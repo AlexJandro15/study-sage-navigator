@@ -4,6 +4,7 @@ import PomodoroTimer from '@/components/PomodoroTimer';
 import StudyStats from '@/components/StudyStats';
 import ExamCalendar from '@/components/ExamCalendar';
 import ColorCustomizer from '@/components/ColorCustomizer';
+import GradeTracker from '@/components/GradeTracker';
 
 interface Task {
   id: string;
@@ -53,6 +54,7 @@ const Index = () => {
           <div className="lg:col-span-2 space-y-6">
             <TaskList tasks={tasks} onTaskToggle={handleTaskToggle} />
             <StudyStats />
+            <GradeTracker />
           </div>
           <div className="space-y-6">
             <PomodoroTimer />
