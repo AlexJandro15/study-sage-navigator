@@ -4,6 +4,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -15,6 +22,7 @@ import { Plus, Trash2 } from 'lucide-react';
 
 interface GradeEntry {
   id: string;
+  subject: string;
   name: string;
   grade: number;
   weight: number;
@@ -23,13 +31,14 @@ interface GradeEntry {
 const GradeTracker = () => {
   const [grades, setGrades] = useState<GradeEntry[]>([]);
   const [newEntry, setNewEntry] = useState<Omit<GradeEntry, 'id'>>({
+    subject: '',
     name: '',
     grade: 0,
     weight: 0,
   });
 
   const addGrade = () => {
-    if (newEntry.name && newEntry.grade >= 0 && newEntry.weight > 0) {
+    if (newEntry.subject && newEntry.name && newEntry.grade >= 0 && newEntry.weight > 0) {
       setGrades([
         ...grades,
         {
@@ -37,7 +46,7 @@ const GradeTracker = () => {
           ...newEntry,
         },
       ]);
-      setNewEntry({ name: '', grade: 0, weight: 0 });
+      setNewEntry({ subject: newEntry.subject, name: '', grade: 0, weight: 0 });
     }
   };
 
@@ -45,23 +54,44 @@ const GradeTracker = () => {
     setGrades(grades.filter((grade) => grade.id !== id));
   };
 
-  const calculateWeightedAverage = () => {
-    if (grades.length === 0) return 0;
+  const calculateSubjectAverage = (subject: string) => {
+    const subjectGrades = grades.filter((grade) => grade.subject === subject);
+    if (subjectGrades.length === 0) return 0;
     
-    const totalWeight = grades.reduce((sum, grade) => sum + grade.weight, 0);
-    const weightedSum = grades.reduce(
+    const totalWeight = subjectGrades.reduce((sum, grade) => sum + grade.weight, 0);
+    const weightedSum = subjectGrades.reduce(
       (sum, grade) => sum + (grade.grade * grade.weight),
       0
     );
     
-    return totalWeight > 0 ? (weightedSum / totalWeight).toFixed(2) : 0;
+    return totalWeight > 0 ? Number((weightedSum / totalWeight).toFixed(2)) : 0;
   };
+
+  const calculateOverallAverage = () => {
+    const subjects = [...new Set(grades.map(grade => grade.subject))];
+    if (subjects.length === 0) return 0;
+    
+    const subjectAverages = subjects.map(subject => calculateSubjectAverage(subject));
+    return (subjectAverages.reduce((a, b) => a + b, 0) / subjects.length).toFixed(2);
+  };
+
+  const getUniqueSubjects = () => [...new Set(grades.map(grade => grade.subject))];
 
   return (
     <Card className="w-full p-4">
       <h2 className="text-xl font-semibold mb-4">Seguimiento de Calificaciones</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        <div>
+          <Label htmlFor="subject">Asignatura</Label>
+          <Input
+            id="subject"
+            type="text"
+            value={newEntry.subject}
+            onChange={(e) => setNewEntry({ ...newEntry, subject: e.target.value })}
+            placeholder="Ej: Matemáticas"
+          />
+        </div>
         <div>
           <Label htmlFor="name">Evaluación</Label>
           <Input
@@ -106,6 +136,7 @@ const GradeTracker = () => {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Asignatura</TableHead>
               <TableHead>Evaluación</TableHead>
               <TableHead>Nota</TableHead>
               <TableHead>Peso (%)</TableHead>
@@ -115,6 +146,7 @@ const GradeTracker = () => {
           <TableBody>
             {grades.map((grade) => (
               <TableRow key={grade.id}>
+                <TableCell>{grade.subject}</TableCell>
                 <TableCell>{grade.name}</TableCell>
                 <TableCell>{grade.grade}</TableCell>
                 <TableCell>{grade.weight}%</TableCell>
@@ -131,7 +163,7 @@ const GradeTracker = () => {
             ))}
             {grades.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                <TableCell colSpan={5} className="text-center text-muted-foreground">
                   No hay calificaciones registradas
                 </TableCell>
               </TableRow>
@@ -140,10 +172,20 @@ const GradeTracker = () => {
         </Table>
       </div>
 
-      <div className="mt-4 text-right">
-        <p className="text-lg font-semibold">
-          Promedio Ponderado: {calculateWeightedAverage()}
-        </p>
+      <div className="mt-4 space-y-2">
+        {getUniqueSubjects().map(subject => (
+          <div key={subject} className="flex justify-between items-center px-4 py-2 bg-muted rounded-lg">
+            <span className="font-medium">{subject}</span>
+            <span>Promedio: {calculateSubjectAverage(subject)}</span>
+          </div>
+        ))}
+        
+        {grades.length > 0 && (
+          <div className="flex justify-between items-center px-4 py-2 bg-primary/10 rounded-lg mt-4">
+            <span className="font-semibold">Promedio General</span>
+            <span className="font-semibold">{calculateOverallAverage()}</span>
+          </div>
+        )}
       </div>
     </Card>
   );
