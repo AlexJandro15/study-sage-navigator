@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import TaskList from '@/components/TaskList';
 import PomodoroTimer from '@/components/PomodoroTimer';
 import StudyStats from '@/components/StudyStats';
+import ExamCalendar from '@/components/ExamCalendar';
 
 interface Task {
   id: string;
@@ -47,13 +48,14 @@ const Index = () => {
           Mi Plan de Estudio
         </h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
             <TaskList tasks={tasks} onTaskToggle={handleTaskToggle} />
             <StudyStats />
           </div>
-          <div>
+          <div className="space-y-6">
             <PomodoroTimer />
+            <ExamCalendar />
           </div>
         </div>
       </div>
