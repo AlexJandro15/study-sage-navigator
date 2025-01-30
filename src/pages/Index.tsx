@@ -3,6 +3,7 @@ import TaskList from '@/components/TaskList';
 import PomodoroTimer from '@/components/PomodoroTimer';
 import StudyStats from '@/components/StudyStats';
 import ExamCalendar from '@/components/ExamCalendar';
+import ColorCustomizer from '@/components/ColorCustomizer';
 
 interface Task {
   id: string;
@@ -59,6 +60,7 @@ const Index = () => {
           </div>
         </div>
       </div>
+      <ColorCustomizer />
     </div>
   );
 };
